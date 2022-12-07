@@ -32,7 +32,6 @@ class Cliente():
 
     def __str__(self):
         return self.__nombre+ "\n" + self.__apellido +"\n"+ self.__domicilio+"\n" + self.__correo+"\n" + str(self.__dni)
-
     def registrar_cliente(self):
         while(True):
             con = sql.connect('Supermark.db')
@@ -50,6 +49,15 @@ class Cliente():
         cur.execute("INSERT INTO Clientes(apellido,nombre,dni,correo,domicilio) VALUES (?,?,?,?,?)",(self.__apellido,self.__nombre,self.__domicilio, self.__correo,self.__dni))
         con.commit()
         con.close()
+    def mostrar_productos(self):
+        con = sql.connect('supermark.db')
+        cur = con.cursor()
+        cur.execute("select * from productos")
+        productos = cur.fetchall()
+        for produc in productos:
+            print(produc)
+        con.close()
+    #para recuperar cur.lastidrow
 
 class producto():
     def __init__(self,descripcion,precio,stock,nombre):
@@ -59,6 +67,7 @@ class producto():
         self.__nombre = nombre
     def __str__(self):
         return self.__descripcion+ "\n" + str(self.__precio)+"\n" + str(self.__stock) +"\n"+self.__nombre
+
     def cargar_producto(self):
         while(True):
             con = sql.connect('Supermark.db')
@@ -77,7 +86,8 @@ class producto():
         cur.execute("INSERT INTO productos(descripcion,precio,stock,nombre) VALUES (?,?,?,?)",(self.__descripcion,self.__precio,self.__stock,self.__nombre))
         con.commit()
         con.close()
-    def quitar_producto(self, cantidad):
+    
+    def quitar_stock(self, cantidad):
         con = sql.connect('Supermark.db')
         cur = con.cursor()
         cur.execute(f"select * from productos where nombre = '{self.__nombre}' ")
@@ -86,7 +96,33 @@ class producto():
         cur.execute(f"UPDATE productos SET stock = {self.__stock} where nombre = '{self.__nombre}'")
         con.commit()
         con.close()
-        
+
+    def agregar_stock(self, cantidad):
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute(f"select * from productos where nombre = '{self.__nombre}' ")
+        prod = cur.fetchone()
+        self.__stock = prod[3] + cantidad
+        cur.execute(f"UPDATE productos SET stock = {self.__stock} where nombre = '{self.__nombre}'")
+        con.commit()
+        con.close()
+
+    def modificar_descripcion(self,descripcion):
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute(f"select * from productos where nombre = '{self.__descripcion}' ")
+        prod = cur.fetchone()
+        self.__descripcion = descripcion
+        cur.execute(f"UPDATE productos SET stock = {self.__descripcion} where nombre = '{self.__nombre}'")
+        con.commit()
+        con.close()
+
+    def cambiar_nombre(self,nombre):
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute(f"UPDATE productos SET stock = {nombre} where nombre = '{self.__nombre}'")
+        con.commit()
+        con.close()
 class ProductoCarrito():
     def __init__(self, Producto, cantidad):
         self.__Producto = Producto
@@ -119,7 +155,6 @@ if __name__ == "__main__":
     user1.registrar_user()
     print(cliente1)
     print(user1)'''
-    pr = producto("naranja criolla",29.99,500,"naranja")
-    pr.quitar_producto(20)
+    pr = producto("galletas",100 , 150 ,"q")
+    cl.mostrar_productos()
     print(pr)
-
