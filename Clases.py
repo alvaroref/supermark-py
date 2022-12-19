@@ -1,5 +1,8 @@
 from http import client
 import sqlite3 as sql
+import tkinter.messagebox as mbox
+from datetime import date
+import os
 
 class Usuario():
     def __init__(self,nombreUser,clave,tipo = None):
@@ -7,20 +10,19 @@ class Usuario():
         self.__clave = clave
         self.__tipo = tipo
     def registrar_user(self):
-        while True:
             con = sql.connect('Supermark.db',timeout = 10)
             cur = con.cursor()
-            cur.execute(f"select * from Clientes where correo = '{self.__correo}' ")
+            cur.execute(f"select * from Clientes where correo = '{self.__nombreUser}' ")
             usuario = cur.fetchone()
-            if usuario != None:
-                    print("ya existe el usuario")
-                    self.__correo = input("ingrese correo: ").replace(" ","")
-            else:
-                    break
             con.close()
-        cur.execute("INSERT INTO usuarios VALUES (?,?)",(self.__nombreUser,self.__clave))
-        con.commit()
-        con.close()
+            if usuario != None:
+                print("ya existe el usuario")
+            else:
+                con = sql.connect('Supermark.db',timeout = 10)
+                cur = con.cursor()
+                cur.execute("INSERT INTO usuarios VALUES (?,?)",(self.__nombreUser,self.__clave))
+                con.commit()
+                con.close()
 
 class Cliente():
     def __init__(self,nombre ,apellido ,domicilio ,correo ,dni):
@@ -33,22 +35,22 @@ class Cliente():
     def __str__(self):
         return self.__nombre+ "\n" + self.__apellido +"\n"+ self.__domicilio+"\n" + self.__correo+"\n" + str(self.__dni)
     def registrar_cliente(self):
-        while(True):
             con = sql.connect('Supermark.db')
             cur = con.cursor()
             cur.execute(f"select * from Clientes where correo = '{self.__correo}' ")
             usuario = cur.fetchone()
-            if usuario != None:
-                print("ya existe el usuario")
-                self.__correo = input("ingrese correo: ").replace(" ","")
-            else:
-                break
             con.close()
-        con = sql.connect('Supermark.db')
-        cur = con.cursor()
-        cur.execute("INSERT INTO Clientes(apellido,nombre,dni,correo,domicilio) VALUES (?,?,?,?,?)",(self.__apellido,self.__nombre,self.__domicilio, self.__correo,self.__dni))
-        con.commit()
-        con.close()
+            if usuario != None:
+                mbox.showwarning("error","ya existe el usuario")
+            else:
+                con = sql.connect('Supermark.db',timeout = 10)
+                cur = con.cursor()
+                cur.execute("INSERT INTO Clientes(apellido,nombre,dni,correo,domicilio) VALUES (?,?,?,?,?)",(self.__apellido,self.__nombre,self.__domicilio, self.__correo,self.__dni))
+                con.commit()
+                con.close()
+
+
+
     def mostrar_productos(self):
         con = sql.connect('supermark.db')
         cur = con.cursor()
@@ -69,23 +71,19 @@ class producto():
         return self.__descripcion+ "\n" + str(self.__precio)+"\n" + str(self.__stock) +"\n"+self.__nombre
 
     def cargar_producto(self):
-        while(True):
-            con = sql.connect('Supermark.db')
-            cur = con.cursor()
-            cur.execute(f"select * from productos where nombre = '{self.__nombre}' ")
-            prod = cur.fetchone()
-            con.close()
-            if prod != None:
-                print("ya existe el producto")
-                self.__nombre = input("ingrese otro producto: ").replace(" ","")
-                self.__descripcion = input("ingrese una nueva descripcion ")
-            else:
-                break
         con = sql.connect('Supermark.db')
         cur = con.cursor()
-        cur.execute("INSERT INTO productos(descripcion,precio,stock,nombre) VALUES (?,?,?,?)",(self.__descripcion,self.__precio,self.__stock,self.__nombre))
-        con.commit()
+        cur.execute(f"select * from productos where nombre = '{self.__nombre}' ")
+        prod = cur.fetchone()
         con.close()
+        if prod != None:
+            mbox.showwarning("error","ya existe el producto que se desea cargar")
+        else:
+            con = sql.connect('Supermark.db')
+            cur = con.cursor()
+            cur.execute("INSERT INTO productos(descripcion,precio,stock,nombre) VALUES (?,?,?,?)",(self.__descripcion,self.__precio,self.__stock,self.__nombre))
+            con.commit()
+            con.close()
     
     def quitar_stock(self, cantidad):
         con = sql.connect('Supermark.db')
@@ -112,41 +110,85 @@ class producto():
         cur = con.cursor()
         cur.execute(f"select * from productos where nombre = '{self.__descripcion}' ")
         prod = cur.fetchone()
-        self.__descripcion = descripcion
-        cur.execute(f"UPDATE productos SET stock = {self.__descripcion} where nombre = '{self.__nombre}'")
+        cur.execute(f"UPDATE productos SET descripcion = '{descripcion}' where nombre = '{self.__nombre}'")
         con.commit()
         con.close()
-
     def cambiar_nombre(self,nombre):
         con = sql.connect('Supermark.db')
         cur = con.cursor()
-        cur.execute(f"UPDATE productos SET stock = {nombre} where nombre = '{self.__nombre}'")
+        cur.execute(f"UPDATE productos SET nombre = '{nombre}' where nombre = '{self.__nombre}'")
+        con.commit()
+        con.close()
+    def cambiar_precio(self,precio):
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute(f"UPDATE productos SET precio = {precio} where nombre = '{self.__nombre}'")
+        con.commit()
+        con.close()
+    def quitar_prod(self,nombre):
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute(f"delete from productos where nombre = '{nombre}'")
         con.commit()
         con.close()
 class ProductoCarrito():
-    def __init__(self, Producto, cantidad):
+    def __init__(self, Producto, cantidad,precio):
         self.__Producto = Producto
         self.__cantidad = cantidad
-
-class Carrito():
-    def __init__(self,ProductoCarrito):
-        self.__ProductosCarrito = ProductoCarrito
-
-class RegistroDatos():
-    def RegistrarCliente(self):
-        nombre = input("ingrese nombre")
-        apellido = input("ingrese apellido")
-        dom = input("ingrese domicilio")
-        correo = input("ingrese correo").replace(" ","")
-        dni = int(input("ingrese DNI"))
-        Datos = Cliente(apellido,nombre,dni,correo,dom)
-        return Datos
-    def RegistrarUsuario(self):
-        correo = input("ingrese correo")
-        clave = input("Ingrese Clave")
-        User = Usuario(correo,clave)
-        return User
-
+        self.__precio = precio
+        self.__carrito = [[self.__Producto,self.__precio,self.__cantidad]]
+    def agregar(self,prod,cantidad,precio):
+            a = 0
+            for i in self.__carrito:
+                if i[0] == prod:
+                    print("entro")
+                    print(a)
+                    self.__carrito[a]=([prod,precio,cantidad])
+                    return a
+                a+=1
+            self.__carrito.append([prod,precio,cantidad])
+            return len(self.__carrito)+1
+    def tamlista(self):
+        return len(self.__carrito)
+    def lista(self):
+        return self.__carrito
+    def quitar_carrito(self,posicion):
+        self.__carrito.pop(posicion)
+    def total(self):
+        total = 0
+        archivo = open("id_cliente.txt","r")
+        id_cliente = archivo.readlines()
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute("INSERT INTO venta(id_cliente,fecha) VALUES (?,?)",(id_cliente[0],date.today()))
+        con.commit()
+        cur.execute(f"select * from venta where id_cliente = '{id_cliente[0]}' ")
+        id_venta = cur.lastrowid
+        print(id_venta)
+        con.close()
+        prod_id = ""
+        cantidad = ""
+        for i in self.__carrito:
+            if i[0] != "producto":
+                print(i[0])
+                print(i[2])
+                con = sql.connect('Supermark.db')
+                cur = con.cursor()
+                cur.execute(f"select * from productos where nombre = '{i[0]}' ")
+                prod = cur.fetchone()
+                resto = int(prod[3]) - int(i[2])
+                cur.execute(f"UPDATE productos SET stock = {resto} where nombre = '{i[0]}'")
+                con.commit()
+                con.close()
+                prod_id += str(prod[0]) + " "
+                cantidad += str(i[2]) + " "
+                total += float(i[1])*float(i[2])
+        con = sql.connect('Supermark.db')
+        cur = con.cursor()
+        cur.execute("INSERT OR REPLACE INTO detalle_venta VALUES (?,?,?)",(id_venta,prod_id,cantidad))
+        con.commit()
+        con.close()
+        return total
 if __name__ == "__main__":
     '''reg = RegistroDatos()
     cliente1 = reg.RegistrarCliente()
@@ -155,6 +197,6 @@ if __name__ == "__main__":
     user1.registrar_user()
     print(cliente1)
     print(user1)'''
-    pr = producto("galletas",100 , 150 ,"q")
     cl.mostrar_productos()
     print(pr)
+

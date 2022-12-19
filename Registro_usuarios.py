@@ -1,7 +1,12 @@
 import tkinter as tk
 import tkinter.font as tkFont
+import tkinter.messagebox as mbox
+from Clases import Cliente
+from Clases import Usuario
+from user_view import vista_usuario
+import sqlite3 as sql
 
-class App:
+class Registrar_usuario:
     def __init__(self, root):
         #setting title
         root.title("Supermark-UserReg")
@@ -46,15 +51,15 @@ class App:
         GLabel_993["text"] = "Domicilio"
         GLabel_993.place(x=70,y=210,width=120,height=50)
 
-        GButton_712=tk.Button(root)
-        GButton_712["bg"] = "#f0f0f0"
+        botonreg=tk.Button(root)
+        botonreg["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times',size=10)
-        GButton_712["font"] = ft
-        GButton_712["fg"] = "#000000"
-        GButton_712["justify"] = "center"
-        GButton_712["text"] = "Registrarse"
-        GButton_712.place(x=250,y=440,width=100,height=42)
-        GButton_712["command"] = self.GButton_712_command
+        botonreg["font"] = ft
+        botonreg["fg"] = "#000000"
+        botonreg["justify"] = "center"
+        botonreg["text"] = "Registrarse"
+        botonreg.place(x=250,y=440,width=100,height=42)
+        botonreg["command"] = self.agregar_datos
 
         GLabel_297=tk.Label(root)
         ft = tkFont.Font(family='Times',size=22)
@@ -80,64 +85,95 @@ class App:
         GLabel_856["text"] = "Clave"
         GLabel_856.place(x=80,y=360,width=100,height=50)
 
-        GLineEdit_937=tk.Entry(root)
-        GLineEdit_937["borderwidth"] = "1px"
+        self.nombre=tk.Entry(root)
+        self.nombre["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_937["font"] = ft
-        GLineEdit_937["fg"] = "#333333"
-        GLineEdit_937["justify"] = "center"
-        GLineEdit_937["text"] = "Nombre"
-        GLineEdit_937.place(x=200,y=120,width=240,height=30)
+        self.nombre["font"] = ft
+        self.nombre["fg"] = "#333333"
+        self.nombre["justify"] = "center"
+        self.nombre["text"] = "Nombre"
+        self.nombre.place(x=200,y=120,width=240,height=30)
 
-        GLineEdit_1=tk.Entry(root)
-        GLineEdit_1["borderwidth"] = "1px"
+        self.apellido=tk.Entry(root)
+        self.apellido["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_1["font"] = ft
-        GLineEdit_1["fg"] = "#333333"
-        GLineEdit_1["justify"] = "center"
-        GLineEdit_1["text"] = "Apellido"
-        GLineEdit_1.place(x=200,y=170,width=240,height=30)
+        self.apellido["font"] = ft
+        self.apellido["fg"] = "#333333"
+        self.apellido["justify"] = "center"
+        self.apellido["text"] = "Apellido"
+        self.apellido.place(x=200,y=170,width=240,height=30)
 
-        GLineEdit_241=tk.Entry(root)
-        GLineEdit_241["borderwidth"] = "1px"
+        self.domicilio=tk.Entry(root)
+        self.domicilio["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_241["font"] = ft
-        GLineEdit_241["fg"] = "#333333"
-        GLineEdit_241["justify"] = "center"
-        GLineEdit_241["text"] = "Domicilio"
-        GLineEdit_241.place(x=200,y=220,width=240,height=30)
+        self.domicilio["font"] = ft
+        self.domicilio["fg"] = "#333333"
+        self.domicilio["justify"] = "center"
+        self.domicilio["text"] = "Domicilio"
+        self.domicilio.place(x=200,y=220,width=240,height=30)
 
-        GLineEdit_153=tk.Entry(root)
-        GLineEdit_153["borderwidth"] = "1px"
+        self.correo=tk.Entry(root)
+        self.correo["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_153["font"] = ft
-        GLineEdit_153["fg"] = "#333333"
-        GLineEdit_153["justify"] = "center"
-        GLineEdit_153["text"] = "Correo"
-        GLineEdit_153.place(x=200,y=270,width=240,height=30)
+        self.correo["font"] = ft
+        self.correo["fg"] = "#333333"
+        self.correo["justify"] = "center"
+        self.correo["text"] = "Correo"
+        self.correo.place(x=200,y=270,width=240,height=30)
 
-        GLineEdit_713=tk.Entry(root)
-        GLineEdit_713["borderwidth"] = "1px"
+        self.dni=tk.Entry(root)
+        self.dni["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_713["font"] = ft
-        GLineEdit_713["fg"] = "#333333"
-        GLineEdit_713["justify"] = "center"
-        GLineEdit_713["text"] = "Dni"
-        GLineEdit_713.place(x=200,y=320,width=240,height=30)
+        self.dni["font"] = ft
+        self.dni["fg"] = "#333333"
+        self.dni["justify"] = "center"
+        self.dni["text"] = "Dni"
+        self.dni.place(x=200,y=320,width=240,height=30)
 
-        GLineEdit_745=tk.Entry(root)
-        GLineEdit_745["borderwidth"] = "1px"
+        self.clave=tk.Entry(root)
+        self.clave["borderwidth"] = "1px"
         ft = tkFont.Font(family='Times',size=10)
-        GLineEdit_745["font"] = ft
-        GLineEdit_745["fg"] = "#333333"
-        GLineEdit_745["justify"] = "center"
-        GLineEdit_745["text"] = "Clave"
-        GLineEdit_745.place(x=200,y=370,width=240,height=30)
+        self.clave["font"] = ft
+        self.clave["fg"] = "#333333"
+        self.clave["justify"] = "center"
+        self.clave["text"] = "Clave"
+        self.clave.place(x=200,y=370,width=240,height=30)
 
-    def GButton_712_command(self):
-        print("command")
+    def agregar_datos(self):
+        nombre = self.nombre.get()
+        apellido = self.apellido.get()
+        domicilio = self.domicilio.get()
+        correo = self.correo.get()
+        dni = self.dni.get()
+        clave = self.clave.get()
+        if nombre != "" and apellido != "" and domicilio != "" and correo != "" and dni != "" and clave != "":
+            cliente = Cliente(nombre,apellido,domicilio,correo,dni)
+            user = Usuario(correo,clave)
+            con = sql.connect('Supermark.db',timeout = 10)
+            cur = con.cursor()
+            cur.execute(f"select * from Clientes where correo = '{correo}' ")
+            llave = cur.fetchone()
+            con.close()
+            if llave != None:
+                mbox.showwarning("error","ya existe el usuario")
+            else:
+                user.registrar_user()
+                cliente.registrar_cliente()
+                con = sql.connect('Supermark.db',timeout = 10)
+                cur = con.cursor()
+                cur.execute(f"select * from Clientes where correo = '{correo}' ")
+                cliente = cur.fetchone()
+                con.close()
+                file = open("id_cliente.txt", "w")
+                file.write(str(cliente[0]))
+                file.close()
+                r = tk.Tk()
+                user = vista_usuario(r)
+        else:
+            mbox.showwarning("error","falta completar un campo")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = App(root)
+    app = Registrar_usuario(root)
     root.mainloop()

@@ -6,6 +6,6 @@ import tkinter.font as tkFont
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = vista_principal(root)
+    app = Inicio_sesion(root)
     
     root.mainloop()

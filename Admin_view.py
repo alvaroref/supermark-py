@@ -1,8 +1,11 @@
 import tkinter as tk
 import tkinter.font as tkFont
+from vista_de_admin import vista_admin_prod
+from admin_user_view import vista_admin_user
 
 class Admin_view:
     def __init__(self, root):
+        self.root = root
         #setting title
         root.title("Admin")
         #setting window size
@@ -22,7 +25,7 @@ class Admin_view:
         Productos_boton["justify"] = "center"
         Productos_boton["text"] = "Productos"
         Productos_boton.place(x=320,y=50,width=200,height=100)
-        Productos_boton["command"] = self.GButton_444_command
+        Productos_boton["command"] = self.vista_producto
 
         Usuarios_boton=tk.Button(root)
         Usuarios_boton["bg"] = "#f0f0f0"
@@ -32,7 +35,7 @@ class Admin_view:
         Usuarios_boton["justify"] = "center"
         Usuarios_boton["text"] = "Usuarios"
         Usuarios_boton.place(x=320,y=300,width=200,height=100)
-        Usuarios_boton["command"] = self.GButton_341_command
+        Usuarios_boton["command"] = self.vista_clientes
 
         Tag_usuarios=tk.Label(root)
         ft = tkFont.Font(family='Times',size=18)
@@ -50,12 +53,13 @@ class Admin_view:
         Tag_productos["text"] = "Lista de productos"
         Tag_productos.place(x=60,y=50,width=220,height=100)
 
-    def GButton_444_command(self):
-        print("command")
+    def vista_producto(self):
+        rot = tk.Toplevel(self.root)
+        view = vista_admin_prod(rot)
 
-
-    def GButton_341_command(self):
-        print("command")
+    def vista_clientes(self):
+        rot = tk.Tk()
+        view = vista_admin_user(rot)
 
 if __name__ == "__main__":
     root = tk.Tk()
