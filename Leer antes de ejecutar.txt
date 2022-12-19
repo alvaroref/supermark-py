@@ -1,0 +1,12 @@
+Con IDLE(python IDE) el codigo funciona correctamente al lanzarlo.
+
+En caso de usar Visual studio code lanzar el archivo main en modo debug python file,
+para acceder correctamente a la base de datos.
+
+admin:
+nombre/correo: 2
+contraseña: 1
+
+usuario para probar:
+nombre/correo: a
+contraseña: s
